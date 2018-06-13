@@ -1,6 +1,7 @@
 const { db } = require('../firebase');
 const { respondWithResult, respondWithError } = require('../helpers/response');
 const { PATH_MESSAGE } = require('../helpers/constants');
+const { getStockPrice } = require('../stock/index');
 
 // Get Message limit 10
 const getAllMessages = (limit = 50, idUser, callback) =>
@@ -11,21 +12,15 @@ const getMessage = (limit, idUser, callback) => {
   getAllMessages(limit, idUser, callback);
 };
 
-// Create Message
-const postMessage = (req, res) => {
-  const {
-    idUser,
-    message,
-  } = req.body;
-  // TODO: add validations to all data
-  // Create a user in your own accessible Firebase Database too
+const createMessage = (idChat, idUser, name, message, res) => {
   const timestamp = new Date().getTime();
   db.doCreateList(
-    `${PATH_MESSAGE}/${idUser}`,
+    `${PATH_MESSAGE}/${idChat}`,
     {
       idUser,
       message,
       timestamp,
+      name,
     },
   )
     .then((solution) => {
@@ -36,6 +31,34 @@ const postMessage = (req, res) => {
       console.error(error);
       respondWithError(res, 500)(error);
     });
+};
+
+const postMessage = (req, res) => {
+  const {
+    idUser,
+    message,
+    name,
+  } = req.body;
+  // TODO: add validations to all data
+  // Create a user in your own accessible Firebase Database too
+  const match = message.match(/[/+]stock=(.*)/i);
+  const idChat = idUser;
+  if (match) {
+    const stock = match[1];
+    getStockPrice(stock)
+      .then((result) => {
+        const idBot = 1;
+        const botName = 'jobsity';
+        const newMsg = `${stock} quote is $${result.Close} per share`;
+        createMessage(idChat, idBot, botName, newMsg, res);
+      })
+      .catch((error) => {
+        console.error(error);
+        respondWithError(res, 500)(error);
+      });
+  } else {
+    createMessage(idChat, idUser, name, message, res);
+  }
 };
 
 // Update Message
