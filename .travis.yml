@@ -1,0 +1,14 @@
+language: node_js
+node_js:
+  - '6.11.1'
+notifications:
+  email:
+    recipients:
+      - wdospinal@gmail.com
+    on_success: never
+    on_failure: always
+skip_cleanup: true
+install:
+  - npm install
+script:
+  - cd functions && npm install && npm run test
