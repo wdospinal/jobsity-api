@@ -18,7 +18,7 @@ function respondWithError(res, statusCode) {
   return (code) => {
     console.log(code);
     let response = getErrorCode(code);
-    response = response.message ? response : getErrorCode(1);
+    response = response.message ? response : code;
     console.log(response);
     res.status(resCode).json(response);
   };

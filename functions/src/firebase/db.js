@@ -1,10 +1,10 @@
 const { database } = require('./firebase');
 
 const doCreate = (path, object) =>
-  database.ref(`${path}${object.id}`).set({ ...object });
+  database.ref(`${path}${object.id}`).set(object);
 
 const doCreateList = (path, object) =>
-  database.ref(`${path}`).push().set({ ...object });
+  database.ref(`${path}`).push().set(object);
 
 const doGetOne = (path, id, callback) =>
   database.ref(`${path}${id}`).on('value', callback);

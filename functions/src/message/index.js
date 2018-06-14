@@ -4,25 +4,23 @@ const { PATH_MESSAGE } = require('../helpers/constants');
 const { getStockPrice } = require('../stock/index');
 
 // Get Message limit 10
-const getAllMessages = (limit = 50, idUser, callback) =>
-  db.doGet(`${PATH_MESSAGE}/${idUser}`, 'timestamp', parseInt(limit, 10), callback);
+const getAllMessages = (limit = 50, dni, callback) =>
+  db.doGet(`${PATH_MESSAGE}/${dni}`, 'timestamp', parseInt(limit, 10), callback);
 
 // If id or not id
-const getMessage = (limit, idUser, callback) => {
-  getAllMessages(limit, idUser, callback);
+const getMessage = (limit, dni, callback) => {
+  getAllMessages(limit, dni, callback);
 };
 
-const createMessage = (idChat, idUser, name, message, res) => {
+const createMessage = (idChat, dni, name, message, res) => {
   const timestamp = new Date().getTime();
-  db.doCreateList(
-    `${PATH_MESSAGE}/${idChat}`,
-    {
-      idUser,
-      message,
-      timestamp,
-      name,
-    },
-  )
+  const msg = {
+    dni,
+    message,
+    timestamp,
+    name,
+  };
+  db.doCreateList(`${PATH_MESSAGE}/${idChat}`, msg)
     .then((solution) => {
       console.log('El envio fue correcto!', solution);
       respondWithResult(res, 200)(solution);
@@ -35,14 +33,14 @@ const createMessage = (idChat, idUser, name, message, res) => {
 
 const postMessage = (req, res) => {
   const {
-    idUser,
+    dni,
     message,
     name,
   } = req.body;
   // TODO: add validations to all data
   // Create a user in your own accessible Firebase Database too
   const match = message.match(/[/+]stock=(.*)/i);
-  const idChat = idUser;
+  const idChat = dni;
   if (match) {
     const stock = match[1];
     getStockPrice(stock)
@@ -57,25 +55,22 @@ const postMessage = (req, res) => {
         respondWithError(res, 500)(error);
       });
   } else {
-    createMessage(idChat, idUser, name, message, res);
+    createMessage(idChat, dni, name, message, res);
   }
 };
 
 // Update Message
 const putMessage = (req, res) => {
-  const { id } = req.query;
-  db.doPut(
-    PATH_MESSAGE,
-    id,
-    ...req.query,
-    respondWithResult(res, 200),
-  );
+  const {
+    dni, id, name, message,
+  } = req.body;
+  db.doPut(PATH_MESSAGE, `${dni}/${id}`, { dni, name, message }, respondWithResult(res, 200));
 };
 
 // Delete Message
 const deleteMessage = (req, res) => {
-  const { id } = req.query;
-  db.doDelete(id, respondWithResult(res, 200));
+  const { id, dni } = req.query;
+  db.doDelete(PATH_MESSAGE, `${dni}/${id}`, respondWithResult(res, 200));
 };
 
 module.exports = {
