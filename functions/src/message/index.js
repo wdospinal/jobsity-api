@@ -23,7 +23,7 @@ const createMessage = (idChat, dni, name, message, res) => {
   db.doCreateList(`${PATH_MESSAGE}/${idChat}`, msg)
     .then((solution) => {
       console.log('El envio fue correcto!', solution);
-      respondWithResult(res, 200)(solution);
+      respondWithResult(res, 200)(msg);
     })
     .catch((error) => {
       console.error(error);

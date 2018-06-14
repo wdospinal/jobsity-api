@@ -8,10 +8,12 @@ const getChat = (req, res) => {
   getMessage(limit, dni, (sol) => {
     const list = [];
     const solution = sol.val();
-    Object.keys(solution).forEach((id) => {
-      const newObj = Object.assign({}, { id }, solution[id]);
-      list.push(newObj);
-    });
+    if (solution) {
+      Object.keys(solution).forEach((id) => {
+        const newObj = Object.assign({}, { id }, solution[id]);
+        list.push(newObj);
+      });
+    }
     respondWithResult(res, 200)(list);
   });
 };

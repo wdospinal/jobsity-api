@@ -36,7 +36,7 @@ const postUser = (req, res) => {
     email,
     profile,
   };
-  db.doCreate(PATH_USER, user)
+  db.doCreate(PATH_USER, dni, user)
     .then((solution) => {
       console.log('El envio fue correcto!', solution);
       respondWithResult(res, 200)(solution);
