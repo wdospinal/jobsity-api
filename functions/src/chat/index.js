@@ -9,7 +9,7 @@ const getChat = (req, res) => {
     const list = [];
     const solution = sol.val();
     Object.keys(solution).forEach((id) => {
-      const newObj = { ...solution[id], id };
+      const newObj = Object.assign({}, { id }, solution[id]);
       list.push(newObj);
     });
     respondWithResult(res, 200)(list);
